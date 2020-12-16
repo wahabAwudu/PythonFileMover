@@ -1,5 +1,6 @@
 import os
 import time
+import json
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
@@ -7,41 +8,25 @@ from watchdog.events import FileSystemEventHandler
 class MoveHandler(FileSystemEventHandler):
     # modify the on_modified method
     def on_modified(self, event):
-        dirl = os.listdir(pathtowatch)
-        for fname in dirl:
-            fname1 = fname
-            fname2 = fname
+        for filename in os.listdir(folder_to_track):
+            source_folder = folder_to_track + "/" + filename
+            dest_folder = folder_destination + "/" + filename
+            os.rename(source_folder, dest_folder)
 
-            source_folder = pathtowatch + "\\" + fname1
-            destination_folder = destination + "\\" + fname2
-
-            file_done = False
-            file_size = -1
-            while file_size != os.path.getsize(pathtowatch):
-                file_size = os.path.getsize(destination)
-                time.sleep(1)
-            
-            while not file_done:
-                try:
-                    os.rename(source_folder, destination_folder)
-                    file_done = True
-                except:
-                    return True
-
-pathtowatch = "/home/abdul/source"
-destination = "/home/abdul/destination"
+folder_to_track = "/mnt/c/Users/abdul/documents/source"
+folder_destination = "/mnt/c/Users/abdul/documents/destination"
 
 # creating event handler object.
 event_handler = MoveHandler()
 
 #observer
 observer = Observer()
-observer.schedule(event_handler, pathtowatch, recursive=True)
+observer.schedule(event_handler, folder_to_track, recursive=True)
 observer.start()
 
 try:
     while True:
-        time.sleep(20)
+        time.sleep(10)
 except KeyboardInterrupt:
     observer.stop()
 observer.join()
